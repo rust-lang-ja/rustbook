@@ -1,4 +1,4 @@
-# rustbook
+# rustbook [![CircleCI](https://circleci.com/gh/rust-lang-ja/rustbook.svg?style=svg)](https://circleci.com/gh/rust-lang-ja/rustbook)
 
 Build multi-page documentation with Rustdoc.
 
