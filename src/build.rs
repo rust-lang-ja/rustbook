@@ -108,10 +108,24 @@ fn render(book: &Book, tgt: &Path) -> CliResult<()> {
             })?;
         }
 
+        // write the header to a temporary HTML file for rustdoc inclusion
+        let header = tmp.path().join("head.inc");
+        {
+            let mut buffer = BufWriter::new(File::create(&header)?);
+            writeln!(&mut buffer, r#"<meta name="robots" content="noindex">"#)?;
+        }
+
         // write the prelude to a temporary HTML file for rustdoc inclusion
         let prelude = tmp.path().join("prelude.html");
         {
             let mut buffer = BufWriter::new(File::create(&prelude)?);
+            if Path::new("caveat.inc").exists() {
+                let mut caveat_data = String::new();
+                let mut f = fs::File::open("caveat.inc")?;
+                let _ = f.read_to_string(&mut caveat_data)?;
+
+                buffer.write(caveat_data.as_bytes())?;
+            }
             writeln!(&mut buffer, r#"
                 <div id="nav">
                     <button id="toggle-nav">
@@ -141,6 +155,7 @@ fn render(book: &Book, tgt: &Path) -> CliResult<()> {
             "".to_string(),
             preprocessed_path.display().to_string(),
             format!("-o{}", out_path.display()),
+            format!("--html-in-header={}", header.display()),
             format!("--html-before-content={}", prelude.display()),
             format!("--html-after-content={}", postlude.display()),
             format!("--markdown-playground-url=https://play.rust-lang.org"),
