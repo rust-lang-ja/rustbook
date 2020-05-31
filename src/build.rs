@@ -119,13 +119,6 @@ fn render(book: &Book, tgt: &Path) -> CliResult<()> {
         let prelude = tmp.path().join("prelude.html");
         {
             let mut buffer = BufWriter::new(File::create(&prelude)?);
-            if Path::new("caveat.inc").exists() {
-                let mut caveat_data = String::new();
-                let mut f = fs::File::open("caveat.inc")?;
-                let _ = f.read_to_string(&mut caveat_data)?;
-
-                buffer.write(caveat_data.as_bytes())?;
-            }
             writeln!(&mut buffer, r#"
                 <div id="nav">
                     <button id="toggle-nav">
@@ -138,6 +131,13 @@ fn render(book: &Book, tgt: &Path) -> CliResult<()> {
             let _ = write_toc(book, &item, &mut buffer);
             writeln!(&mut buffer, "<div id='page-wrapper'>")?;
             writeln!(&mut buffer, "<div id='page'>")?;
+            if Path::new("caveat.inc").exists() {
+                let mut caveat_data = String::new();
+                let mut f = fs::File::open("caveat.inc")?;
+                let _ = f.read_to_string(&mut caveat_data)?;
+
+                buffer.write(caveat_data.as_bytes())?;
+            }
         }
 
         // write the postlude to a temporary HTML file for rustdoc inclusion
